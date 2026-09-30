@@ -78,7 +78,11 @@ class IngestClient:
                 last_response = response
 
                 if response.status_code in self.NON_RETRYABLE_STATUS_CODES:
-                    if response.status_code == 403:
+                    if response.status_code == 401:
+                        logger.error(
+                            "🔑 Non authentifié (401). BACKEND_API_KEY ne correspond pas à APP_API_KEY du backend."
+                        )
+                    elif response.status_code == 403:
                         logger.error("⛔ Accès refusé (403). Vérifiez BACKEND_API_KEY.")
                     else:
                         logger.error(f"❌ Erreur Backend ({response.status_code}): {response.text}")

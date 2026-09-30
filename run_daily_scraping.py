@@ -170,14 +170,28 @@ def check_configuration():
 
     # Test de connexion au backend
     if backend_settings.api_url:
+        import requests
+        from urllib.parse import urlsplit
+
+        parts = urlsplit(backend_settings.api_url)
+        backend_base = f"{parts.scheme}://{parts.netloc}"
         try:
-            import requests
-            response = requests.get(
-                f"{backend_settings.api_url.replace('/api/ingest/matches', '/api/test')}",
+            response = requests.get(f"{backend_base}/api/test", timeout=5)
+            logger.info(f"✅ Backend accessible (status {response.status_code})")
+
+            # /api/test est public : on valide la clé sur une route protégée
+            auth_response = requests.get(
+                f"{backend_base}/api/competitions",
                 headers={"X-API-KEY": backend_settings.api_key},
                 timeout=5
             )
-            logger.info(f"✅ Backend accessible (status {response.status_code})")
+            if auth_response.status_code in (401, 403):
+                errors.append(
+                    f"❌ BACKEND_API_KEY refusée par le backend ({auth_response.status_code}) : "
+                    "elle doit être identique à APP_API_KEY côté backend"
+                )
+            else:
+                logger.info(f"✅ BACKEND_API_KEY acceptée (status {auth_response.status_code})")
         except Exception as e:
             errors.append(f"❌ Backend inaccessible : {e}")
 
