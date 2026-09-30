@@ -182,7 +182,12 @@ def _process_single_match(match: Dict, category: str, default_journee: Optional[
             formatted_date = dt_obj.strftime("%Y-%m-%d %H:%M:%S")
 
     if not formatted_date:
-        logger.warning(f"⚠️ Date invalide pour match: {match.get('equipe1Libelle')} vs {match.get('equipe2Libelle')}")
+        teams = f"{match.get('equipe1Libelle')} vs {match.get('equipe2Libelle')}"
+        if raw_date:
+            logger.warning(f"⚠️ Date invalide pour match: {teams} ('{raw_date}')")
+        else:
+            # Cas normal : la FFHB ne publie pas encore la date des journées futures
+            logger.debug(f"📅 Date non encore programmée, match ignoré: {teams}")
         return None
 
     # Helper pour convertir les scores en int

@@ -64,7 +64,8 @@ def _ingest_rankings(
             else:
                 logger.error("❌ Echec de l'envoi des classements au Backend.")
     else:
-        logger.warning(f"⚠️ Aucun classement trouvé pour '{category}'")
+        # Normal en début de saison : la FFHB renvoie un classement vide tant qu'aucun match n'est joué
+        logger.info(f"ℹ️ Aucun classement disponible pour '{category}'")
 
 
 def _map_to_ingest_model(raw_match: Dict, category: str, pool_id: str) -> Optional[MatchIngest]:
