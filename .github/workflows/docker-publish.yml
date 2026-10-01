@@ -1,9 +1,8 @@
 name: Docker Build & Push to Docker Hub
 
+# Déclenchement manuel uniquement : le déploiement passe par Dokploy (build depuis git).
+# Workflow conservé pour la future registry Nexus.
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:

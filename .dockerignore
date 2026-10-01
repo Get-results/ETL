@@ -1,0 +1,29 @@
+# Secrets et environnements locaux
+.env
+.venv
+venv
+
+# Git, IDE, caches
+.git
+.github
+.idea
+*.iml
+.DS_Store
+__pycache__
+.pytest_cache
+.ruff_cache
+.coverage
+
+# Données locales, dumps et debug
+*.sql
+data
+logs
+docs
+debug_logos_output
+dump_sources_html
+
+# Tests et outillage dev
+tests
+scripts
+requirements-dev.txt
+.pre-commit-config.yaml
