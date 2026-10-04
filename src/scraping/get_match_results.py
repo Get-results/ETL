@@ -13,7 +13,7 @@ from typing import List, Dict, Tuple, Optional
 from src.config import DEBUG_DIR
 from src.scraping.get_ranking_api import get_ranking_from_api
 from src.settings import get_scraper_settings
-from src.utils.format_date import format_date
+from src.utils.format_date import PARIS_TZ, format_date
 from src.utils.rate_limiter import get_rate_limiter
 
 logger = logging.getLogger(__name__)
@@ -179,7 +179,8 @@ def _process_single_match(match: Dict, category: str, default_journee: Optional[
     if raw_date:
         dt_obj = format_date(raw_date)
         if dt_obj:
-            formatted_date = dt_obj.strftime("%Y-%m-%d %H:%M:%S")
+            # Le backend stocke un LocalDateTime sans fuseau : on envoie l'heure de Paris
+            formatted_date = dt_obj.astimezone(PARIS_TZ).strftime("%Y-%m-%d %H:%M:%S")
 
     if not formatted_date:
         teams = f"{match.get('equipe1Libelle')} vs {match.get('equipe2Libelle')}"
