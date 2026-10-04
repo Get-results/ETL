@@ -49,6 +49,26 @@ class TestProcessSingleMatch:
         assert result["journee"] == "1"
         assert result["official_phase_name"] == "Excellence"
 
+    def test_match_date_is_paris_time_summer(self):
+        """Heure d'été (UTC+2) : l'heure de Paris est conservée, pas convertie en UTC."""
+        match = {"date": "2026-10-04T12:00:00+02:00", "equipe1Libelle": "A", "equipe2Libelle": "B"}
+        assert _process_single_match(match, "-11F", "1")["match_date"] == "2026-10-04 12:00:00"
+
+    def test_match_date_is_paris_time_winter(self):
+        """Heure d'hiver (UTC+1)."""
+        match = {"date": "2026-12-12T20:30:00+01:00", "equipe1Libelle": "A", "equipe2Libelle": "B"}
+        assert _process_single_match(match, "-11F", "1")["match_date"] == "2026-12-12 20:30:00"
+
+    def test_match_date_utc_input_converted_to_paris(self):
+        """Une date fournie en UTC est ramenée à l'heure de Paris."""
+        match = {"date": "2026-10-04T10:00:00Z", "equipe1Libelle": "A", "equipe2Libelle": "B"}
+        assert _process_single_match(match, "-11F", "1")["match_date"] == "2026-10-04 12:00:00"
+
+    def test_match_date_naive_input_kept_as_paris(self):
+        """Une date sans fuseau est considérée comme heure de Paris et reste inchangée."""
+        match = {"date": "2025-01-15T14:30:00", "equipe1Libelle": "A", "equipe2Libelle": "B"}
+        assert _process_single_match(match, "-11F", "1")["match_date"] == "2025-01-15 14:30:00"
+
     def test_process_match_with_invalid_date(self):
         match = {
             "date": "invalid-date",
