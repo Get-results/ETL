@@ -1,0 +1,6 @@
+# Dépendances de dev / test (non installées dans l'image Docker)
+-r requirements.txt
+
+pytest==9.1.1
+ruff==0.16.9
+mypy==2.3.1

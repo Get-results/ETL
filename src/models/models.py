@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 
 class MatchIngest(BaseModel):
@@ -19,8 +19,9 @@ class MatchIngest(BaseModel):
     official_phase_name: Optional[str] = None
     round: Optional[str] = None
 
-    class Config:
-        json_encoders = {datetime: lambda v: v.strftime("%Y-%m-%dT%H:%M:%S")}
+    @field_serializer("match_date", when_used="json")
+    def serialize_match_date(self, v: datetime) -> str:
+        return v.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 class RankingIngest(BaseModel):
