@@ -12,7 +12,7 @@ from src.utils.logging_config import configure_logging
 
 # Application Flask (optionnelle si vous voulez un endpoint HTTP)
 app = Flask(__name__)
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.1"
 configure_logging()
 logging.getLogger('apscheduler').setLevel(logging.INFO)
 
