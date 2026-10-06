@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from typing import Mapping, Optional
 
-APP_VERSION = "1.2.0"
+APP_VERSION = "1.2.1"
 
 UNKNOWN_SHA = "unknown"
 SHA_LENGTH = 12
