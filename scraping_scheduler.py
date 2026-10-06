@@ -9,10 +9,10 @@ from datetime import datetime
 
 from run_daily_scraping import run_daily_scraping
 from src.utils.logging_config import configure_logging
+from src.version import APP_VERSION, GIT_SHA, build_identity
 
 # Application Flask (optionnelle si vous voulez un endpoint HTTP)
 app = Flask(__name__)
-APP_VERSION = "1.1.0"
 configure_logging()
 logging.getLogger('apscheduler').setLevel(logging.INFO)
 
@@ -47,7 +47,7 @@ def scraping_job():
 @app.route('/')
 def index():
     state = "en cours" if _is_running or _scrape_lock.locked() else "idle"
-    return f"APScheduler est en cours d'exécution. État du scraping: {state}."
+    return f"GetResults Scraper {build_identity()} — APScheduler est en cours d'exécution. État du scraping: {state}."
 
 @app.route('/scrape', methods=['GET'])
 def trigger_scrape():
@@ -131,13 +131,18 @@ def trigger_scrape():
 
 @app.route('/health', methods=['GET'])
 def health():
-    """Endpoint de santé simple pour vérifier que l'appli répond."""
-    return {"status": "ok", "scraping": "running" if _is_running or _scrape_lock.locked() else "idle"}, 200
+    """Endpoint de santé : vérifie que l'appli répond et identifie la version déployée."""
+    return {
+        "status": "ok",
+        "scraping": "running" if _is_running or _scrape_lock.locked() else "idle",
+        "version": APP_VERSION,
+        "git_sha": GIT_SHA,
+    }, 200
 
 if __name__ == '__main__':
     # Configuration d'APScheduler
     logging.getLogger(__name__).info(
-        f"--- Démarrage GetResults Scraper v{APP_VERSION} ---"
+        f"--- Démarrage GetResults Scraper {build_identity()} ---"
     )
     logging.getLogger(__name__).info("Scheduler configuré pour 'cron' à 00:00.")
     scheduler = BackgroundScheduler()

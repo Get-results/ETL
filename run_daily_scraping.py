@@ -11,6 +11,7 @@ from src.scraping.get_all import get_all
 from src.utils.sources.api_fetcher import get_urls_from_api
 from src.utils.rate_limiter import RateLimiter
 from src.settings import get_scraper_settings, get_backend_settings, get_source_api_settings, get_db_settings
+from src.version import build_identity
 
 
 @dataclass
@@ -80,7 +81,10 @@ def run_daily_scraping(max_workers: int = None, rate_limit_delay: float = None, 
 
     log_id = create_log_entry()
     start_time = time.time()
-    logger.info(f"🚀 Job scraping: début (workers={max_workers}, rate_limit={rate_limit_delay}s)")
+    logger.info(
+        f"🚀 Job scraping: début — scraper {build_identity()} "
+        f"(workers={max_workers}, rate_limit={rate_limit_delay}s)"
+    )
 
     job_status = "SUCCESS"
     errors: List[str] = []

@@ -16,6 +16,20 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
+# Trace du commit construit, lue par src/version.py (log de démarrage et /health).
+# Dokploy construit depuis un clone git : .dockerignore ne laisse passer de .git que
+# HEAD, refs/ et packed-refs, juste de quoi résoudre le SHA, puis on les retire de
+# l'image. GIT_SHA peut aussi être forcé (`--build-arg GIT_SHA=...`, cf. CI).
+ARG GIT_SHA=""
+RUN set -eu; sha="$GIT_SHA"; \
+    if [ -z "$sha" ] && [ -f .git/HEAD ]; then \
+        ref=$(sed -n 's/^ref: //p' .git/HEAD); \
+        if [ -z "$ref" ]; then sha=$(cat .git/HEAD); \
+        elif [ -f ".git/$ref" ]; then sha=$(cat ".git/$ref"); \
+        elif [ -f .git/packed-refs ]; then sha=$(awk -v r="$ref" '$2 == r { print $1 }' .git/packed-refs); fi; \
+    fi; \
+    printf '%s\n' "${sha:-unknown}" > GIT_SHA; rm -rf .git; echo "GIT_SHA=$(cat GIT_SHA)"
+
 RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
 

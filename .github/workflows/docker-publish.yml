@@ -55,6 +55,9 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
+          # actions/checkout ne fournit pas de .git exploitable au build : on passe le SHA
+          build-args: |
+            GIT_SHA=${{ github.sha }}
           # Utilisation du cache pour accélérer les builds
           cache-from: type=gha,scope=${{ github.workflow }}
           cache-to: type=gha,scope=${{ github.workflow }},mode=max
