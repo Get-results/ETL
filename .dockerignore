@@ -4,7 +4,12 @@
 venv
 
 # Git, IDE, caches
+# On exclut .git sauf le strict nécessaire pour que le Dockerfile résolve le SHA
+# du commit construit (quelques Ko : HEAD, refs/, packed-refs).
 .git
+!.git/HEAD
+!.git/refs
+!.git/packed-refs
 .github
 .idea
 *.iml
