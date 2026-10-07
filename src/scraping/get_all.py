@@ -73,8 +73,11 @@ def _map_to_ingest_model(raw_match: Dict, category: str, pool_id: str) -> Option
     try:
         return MatchIngest(
             match_date=raw_match["match_date"],
+            match_id=raw_match.get("match_id"),
+            team_1_id=raw_match.get("team_1_id"),
             team_1_name=raw_match.get("team_1_name", ""),
             team_1_score=raw_match.get("team_1_score"),
+            team_2_id=raw_match.get("team_2_id"),
             team_2_name=raw_match.get("team_2_name", ""),
             team_2_score=raw_match.get("team_2_score"),
             category=category,
@@ -98,6 +101,7 @@ def _map_to_ranking_model(
         return RankingIngest(
             pool_id=pool_id,
             category=category,
+            team_id=raw_ranking.get("team_id"),
             team_name=raw_ranking.get("team_name", ""),
             rank_number=raw_ranking.get("rank", 0),
             points=raw_ranking.get("points", 0),

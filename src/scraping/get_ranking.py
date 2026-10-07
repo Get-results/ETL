@@ -1,10 +1,18 @@
 import json
 import html
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
+
+
+def parse_ffhb_id(value) -> Optional[str]:
+    """Normalise un identifiant FFHB (equipeId, ext_rencontreId...) en str ; None si absent ou vide."""
+    if value is None:
+        return None
+    value = str(value).strip()
+    return value or None
 
 
 def parse_ranking_list(ranking_list: List[Dict]) -> List[Dict]:
@@ -45,6 +53,7 @@ def parse_ranking_list(ranking_list: List[Dict]) -> List[Dict]:
         )
 
         team_data = {
+            "team_id": parse_ffhb_id(row.get("equipeId")),
             "rank": get_int(["rank", "rang", "sortOrder", "place"]),
             "team_name": team_name.strip(),
             "logo_filename": logo_filename,

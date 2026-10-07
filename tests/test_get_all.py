@@ -286,3 +286,32 @@ class TestGetAll:
 
         assert mock_ingest_client.send_matches.call_count == 1
         assert mock_ingest_client.send_rankings.call_count == 1
+
+
+class TestMapFfhbIds:
+    """Les identifiants FFHB (AEK-56) arrivent jusqu'au payload d'ingestion."""
+
+    def test_match_ids_are_mapped(self):
+        raw_match = {
+            "match_date": "2025-10-04 21:00:00",
+            "match_id": "2390866",
+            "team_1_id": "1240516",
+            "team_1_name": "ALES CEVENNES HB",
+            "team_2_id": "1240523",
+            "team_2_name": "LUNEL MARSILLARGUES HBC",
+        }
+        result = _map_to_ingest_model(raw_match, "SG", "169284")
+        dumped = result.model_dump(mode="json")
+        assert dumped["match_id"] == "2390866"
+        assert dumped["team_1_id"] == "1240516"
+        assert dumped["team_2_id"] == "1240523"
+
+    def test_match_without_ids_still_valid(self):
+        raw_match = {"match_date": "2025-10-04 21:00:00", "team_1_name": "A", "team_2_name": "B"}
+        result = _map_to_ingest_model(raw_match, "SG", "169284")
+        assert result is not None
+        assert result.match_id is None
+
+    def test_ranking_team_id_is_mapped(self):
+        result = _map_to_ranking_model({"team_name": "LUNEL MARSILLARGUES HBC", "team_id": "1240523"}, "SG", "169284")
+        assert result.model_dump(mode="json")["team_id"] == "1240523"

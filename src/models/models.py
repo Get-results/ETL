@@ -10,8 +10,11 @@ class MatchIngest(BaseModel):
     """
 
     match_date: datetime
+    match_id: Optional[str] = Field(None, description="ID FFHB de la rencontre (ext_rencontreId), clé d'upsert")
+    team_1_id: Optional[str] = Field(None, description="ID FFHB de l'équipe 1 (equipe1Id)")
     team_1_name: str = Field(..., description="Nom de l'équipe 1")
     team_1_score: Optional[int] = None
+    team_2_id: Optional[str] = Field(None, description="ID FFHB de l'équipe 2 (equipe2Id)")
     team_2_name: str = Field(..., description="Nom de l'équipe 2")
     team_2_score: Optional[int] = None
     category: str = Field(..., description="Clé de pivot pour le backend (ex: -18M)")
@@ -32,6 +35,7 @@ class RankingIngest(BaseModel):
 
     pool_id: str = Field(..., description="ID technique de la poule (source)")
     category: str = Field(..., description="Clé de pivot pour le backend (ex: -18M)")
+    team_id: Optional[str] = Field(None, description="ID FFHB de l'équipe (equipeId), même référentiel que team_1_id / team_2_id")
     team_name: str = Field(..., description="Nom de l'équipe")
     rank_number: int = Field(..., description="Position au classement")
     points: int = Field(default=0, description="Points totaux")
