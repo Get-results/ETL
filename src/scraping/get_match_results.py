@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from typing import List, Dict, Tuple, Optional
 
 from src.config import DEBUG_DIR
+from src.scraping.get_ranking import parse_ffhb_id
 from src.scraping.get_ranking_api import get_ranking_from_api
 from src.settings import get_scraper_settings
 from src.utils.format_date import PARIS_TZ, format_date
@@ -202,11 +203,14 @@ def _process_single_match(match: Dict, category: str, default_journee: Optional[
 
     return {
         "match_date": formatted_date,
+        # ext_rencontreId (et non 'id') : c'est l'identifiant de l'URL publique .../rencontre-<id>/
+        "match_id": parse_ffhb_id(match.get("ext_rencontreId")),
+        "team_1_id": parse_ffhb_id(match.get("equipe1Id")),
         "team_1_name": match.get("equipe1Libelle", "Nom non disponible"),
         "team_1_score": parse_score(match.get("equipe1Score")),
+        "team_2_id": parse_ffhb_id(match.get("equipe2Id")),
         "team_2_name": match.get("equipe2Libelle", "Nom non disponible"),
         "team_2_score": parse_score(match.get("equipe2Score")),
-        "match_link": None,
         "competition": category,
         "journee": match.get("journeeNumero", default_journee),
         # NOUVEAU CHAMP CRITIQUE

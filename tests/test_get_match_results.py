@@ -245,3 +245,42 @@ class TestFetchHtml:
         result = fetch_html("http://test.com")
 
         assert result is None
+
+
+class TestProcessSingleMatchFfhbIds:
+    """Identifiants FFHB (AEK-56) : clé d'upsert du match et identité des équipes."""
+
+    # Extrait réel de la poule 169284 (journée 3), champs utiles uniquement
+    RAW = {
+        "id": "1960241",
+        "ext_rencontreId": "2390866",
+        "equipe1Id": "1240516",
+        "equipe2Id": "1240523",
+        "date": "2025-10-04T21:00:00+02:00",
+        "equipe1Libelle": "ALES CEVENNES HB",
+        "equipe2Libelle": "LUNEL MARSILLARGUES HBC",
+        "equipe1Score": "27",
+        "equipe2Score": "23",
+    }
+
+    def test_ids_are_extracted(self):
+        result = _process_single_match(dict(self.RAW), "SG", "3")
+        assert result["match_id"] == "2390866"
+        assert result["team_1_id"] == "1240516"
+        assert result["team_2_id"] == "1240523"
+
+    def test_match_id_is_ext_rencontre_id_not_internal_id(self):
+        """Seul ext_rencontreId fonctionne dans l'URL publique .../rencontre-<id>/."""
+        result = _process_single_match(dict(self.RAW), "SG", "3")
+        assert result["match_id"] != self.RAW["id"]
+
+    def test_missing_ids_are_none(self):
+        match = {"date": "2025-10-04T21:00:00+02:00", "equipe1Libelle": "A", "equipe2Libelle": "B"}
+        result = _process_single_match(match, "SG", "3")
+        assert result["match_id"] is None
+        assert result["team_1_id"] is None
+        assert result["team_2_id"] is None
+
+    def test_match_link_no_longer_produced(self):
+        result = _process_single_match(dict(self.RAW), "SG", "3")
+        assert "match_link" not in result

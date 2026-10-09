@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 
 from src.scraping.get_ranking import (
+    parse_ffhb_id,
     parse_ranking_list,
     extract_ranking_from_soup,
     _find_ranking_candidates,
@@ -317,3 +318,30 @@ class TestExtractRankingFromSoup:
 
         assert len(result) == 1
         assert result[0]["team_name"] == "Club C"
+
+
+class TestParseFfhbId:
+    """Normalisation des identifiants FFHB."""
+
+    def test_string_id(self):
+        assert parse_ffhb_id("1240516") == "1240516"
+
+    def test_int_id_becomes_string(self):
+        assert parse_ffhb_id(1240516) == "1240516"
+
+    def test_none_and_empty_are_none(self):
+        assert parse_ffhb_id(None) is None
+        assert parse_ffhb_id("") is None
+        assert parse_ffhb_id("  ") is None
+
+
+class TestParseRankingTeamId:
+    """equipeId du classement : même référentiel que equipe1Id / equipe2Id des matchs (AEK-56)."""
+
+    def test_team_id_extracted(self):
+        rows = [{"equipeId": "1240523", "equipe_libelle": "LUNEL MARSILLARGUES HBC", "place": "3", "point": "30"}]
+        assert parse_ranking_list(rows)[0]["team_id"] == "1240523"
+
+    def test_team_id_missing_is_none(self):
+        rows = [{"teamName": "Team A", "rank": 1, "points": 10}]
+        assert parse_ranking_list(rows)[0]["team_id"] is None
