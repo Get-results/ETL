@@ -8,6 +8,7 @@ import threading
 from datetime import datetime
 
 from run_daily_scraping import run_daily_scraping
+from src.settings import get_settings
 from src.utils.logging_config import configure_logging
 from src.version import APP_VERSION, GIT_SHA, build_identity
 
@@ -139,12 +140,11 @@ def health():
         "git_sha": GIT_SHA,
     }, 200
 
-if __name__ == '__main__':
-    # Configuration d'APScheduler
-    logging.getLogger(__name__).info(
-        f"--- Démarrage GetResults Scraper {build_identity()} ---"
-    )
-    logging.getLogger(__name__).info("Scheduler configuré pour 'cron' à 00:00.")
+def main() -> None:
+    """Point d'entrée : un seul scheduler APScheduler, un seul processus Flask."""
+    log = logging.getLogger(__name__)
+    log.info(f"--- Démarrage GetResults Scraper {build_identity()} ---")
+    log.info("Scheduler configuré pour 'cron' à 00:00.")
     scheduler = BackgroundScheduler()
     # Planifie l'exécution de 'scraping_job' tous les jours à 00:00
     scheduler.add_job(scraping_job, 'cron', hour=0, minute=0, id='daily_scraping')
@@ -153,5 +153,12 @@ if __name__ == '__main__':
     # Arrêt propre du scheduler quand l'appli s'arrête
     atexit.register(lambda: scheduler.shutdown())
 
-    # Lancement de l'appli Flask (sur port 5000 par défaut)
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    # Le mode debug Flask est piloté par DEBUG (false par défaut, jamais en prod).
+    # Le reloader Werkzeug reste désactivé dans tous les cas : il relance ce module
+    # dans un second processus, qui démarrerait un second scheduler et ferait
+    # tourner le scrape nocturne deux fois (AEK-84).
+    app.run(host='0.0.0.0', port=5001, debug=get_settings().debug, use_reloader=False)
+
+
+if __name__ == '__main__':
+    main()
